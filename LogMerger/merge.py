@@ -56,8 +56,7 @@ def _merge_log_files(
     with open(output_path, 'w') as output:
         log_1 = log_iterator.LogFileIterator(path_to_file_1)
         log_1.open()
-        log_2 = log_iterator.LogFileIterator(path_to_file_2)
-        log_2.open()
+        log_2 = open(path_to_file_2)
 
         print(
             f'\nMerging {filename_1} and {filename_2} is started at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
