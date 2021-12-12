@@ -81,9 +81,12 @@ def main() -> None:
     else:
         output_path = Path('./output_log.jsonl')
 
-    _merge_log_files(path_to_file_1, path_to_file_2, output_path)
+    try:
+        _merge_log_files(path_to_file_1, path_to_file_2, output_path)
+        print(f'Finished in {time.time() - t0:0f} sec')
 
-    print(f'Finished in {time.time() - t0:0f} sec')
+    except FileNotFoundError:
+        print('Invalid path! Put valid paths to files and try again')
 
 
 if __name__ == '__main__':
