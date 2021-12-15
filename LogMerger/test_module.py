@@ -1,3 +1,6 @@
+'''
+Provides simple test for merging function
+'''
 import unittest
 import os
 from pathlib import Path
@@ -5,7 +8,7 @@ from time import sleep
 from datetime import datetime
 from random import randint, random, shuffle
 import shutil
-import merge
+import log_merger
 
 
 class TestLogMerger(unittest.TestCase):
@@ -14,7 +17,7 @@ class TestLogMerger(unittest.TestCase):
     _full_log_path = Path(r'./TestLogDir/log_full.jsonl')
     _log_a_path = Path(r'./TestLogDir/log_a.jsonl')
     _log_b_path = Path(r'./TestLogDir/log_b.jsonl')
-    _output_log_path = Path(r"./TestLogDir/log_c.jsonl")
+    _output_log_path = Path(r'./TestLogDir/log_c.jsonl')
 
     def setUp(self):
         '''
@@ -31,19 +34,20 @@ class TestLogMerger(unittest.TestCase):
 
         os.mkdir(self._working_dir)
         with open(self._full_log_path, "w") as log:
-            print('Creating testing environment...\nIt may take up to 3 min...'')
+            print('Creating testing environment...\nIt may take up to 3 min...')
             for i in range(50):
                 level = levels[randint(0, 3)]
                 message = messages[randint(0, 4)]
                 timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 line = (
-                    '{'
-                    + f"'log_level': '{level}', 'timestamp': '{timestamp}', \
-                    'message': '{message}'"
-                    + '}\n'
+                    "{"
+                    + f"'log_level': '{level}', 'timestamp':"
+                    + f"'{timestamp}', 'message': '{message}'"
+                    + "}\n"
                 )
                 log.write(line)
-                # In testing purpose to avoid identical timestamps not to shuffle lines
+                # In testing purpose to avoid identical timestamps
+                # not to shuffle lines
                 sleep(random() * randint(1, 2) + 1)
 
         with open(self._full_log_path) as full_log:
@@ -70,7 +74,7 @@ class TestLogMerger(unittest.TestCase):
         Checks merging jsonl log files by timestamp
         '''
 
-        merge._merge_log_files(
+        log_merger._merge_log_files(
             self._log_a_path, self._log_b_path, self._output_log_path
         )
 

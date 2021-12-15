@@ -11,7 +11,7 @@ Example line of an expected log file:
 
 ```bash
 ~$ cd path-to/LogMerger
-LogMerger $ python3 merge.py path/to/first/log/file.jsonl path/to/second/log/file.jsonl [-o path/to/output/file]
+LogMerger $ python3 log_merger.py path/to/first/log/file.jsonl path/to/second/log/file.jsonl [-o path/to/output/file]
 ```
 The path to the output file is optional, if is not given the output file will be
 created directly in the LogMerger directory with the name "output_log.jsonl"

@@ -4,6 +4,7 @@ import argparse
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Iterable, Generator, Any
 
 
 def _parse_args() -> argparse.Namespace:
@@ -34,6 +35,30 @@ def _parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _merge_iterables(
+    iterable_1: Iterable, iterable_2: Iterable
+) -> Generator[Any, None, None]:
+    '''
+    Util generator function for merging do ordered iterables.
+    Elements of iterables should be comparable!
+    '''
+
+    iterator_1 = iter(iterable_1)
+    iterator_2 = iter(iterable_2)
+    item_1 = next(iterator_1, None)
+    item_2 = next(iterator_2, None)
+
+    while item_1 is not None or item_2 is not None:
+        if item_1 is None or (item_2 is not None and item_1 > item_2):
+            yield item_2
+            item_2 = next(iterator_2, None)
+        else:
+            yield item_1
+            item_1 = next(iterator_1, None)
+
+    return None
+
+
 def _merge_log_files(
     path_to_file_1: Path, path_to_file_2: Path, output_path: Path
 ) -> None:
@@ -53,15 +78,18 @@ def _merge_log_files(
     filename_1 = path_to_file_1.name
     filename_2 = path_to_file_2.name
 
+    log_1 = log_iterator.LogFileIterator(path_to_file_1)
+    log_1.open()
+    log_2 = open(path_to_file_2)
+
     with open(output_path, 'w') as output:
-        log_1 = log_iterator.LogFileIterator(path_to_file_1)
-        log_1.open()
-        log_2 = open(path_to_file_2)
 
         print(
-            f'\nMerging {filename_1} and {filename_2} is started at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+            f'\nMerging {filename_1} and {filename_2} is started at',
+            datetime.now().strftime('%H:%M:%S'),
         )
-        for line in heapq.merge(log_1, log_2):
+
+        for line in _merge_iterables(log_1, log_2):
             output.write(line)
 
         log_1.close()
@@ -86,7 +114,14 @@ def main() -> None:
         print(f'Finished in {time.time() - t0:0f} sec')
 
     except FileNotFoundError:
-        print('Invalid path! Put valid paths to files and try again')
+        print('Invalid path(s)! Put valid paths to files and try again')
+
+    except TypeError:
+        print(
+            'Invalid log record format!',
+            'Each line of log file should contain a timestamp in the format',
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        )
 
 
 if __name__ == '__main__':
